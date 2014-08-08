@@ -3,6 +3,8 @@ gmusic-migrate
 
 Account migration tool for Google Music All Access using gmusicapi. Exports your library, playlists, and radio stations from one All Access account and imports them into another account.
 
+**Note: this tool is still in the early stages of development, and it relies on an unofficial API. Use this code at your own risk!**
+
 ##Prerequisites
 
 python 2.7 - https://www.python.org
@@ -14,8 +16,6 @@ gmusicapi - https://github.com/simon-weber/Unofficial-Google-Music-API
 `python gmusic-migrate <origin account> [-op <origin password>] <destination account> [-dp <destination password>]`
 
 If you do not specify a password for an account, the script will prompt you for one.
-
-*Note: if you use two factor authentication you will need to temporarily disable it or create and use application-specific passwords.*
 
 ##Notes and limitations
 
