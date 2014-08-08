@@ -23,7 +23,7 @@ If you do not specify a password for an account, the script will prompt you for 
 * This script does not migrate stored ("locker") tracks that were uploaded through Google Music Manager. You should use Music Manager to migrate these tracks on your own.
 * Ratings and playlist information for "locker" tracks will not be migrated
 * Some tracks seem to fail repeatedly, seems to be a server side issue or API problem
-i* Thumbs-down ratings will only be applied to tracks in your library
+* Thumbs-down ratings will only be applied to tracks in your library
 * Playlist subscriptions will not be migrated
 * Play counts will be 0 on your new account
 * All migrated playlists will be created as private
