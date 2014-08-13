@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from getpass import getpass
-from gmusicapi import Mobileclient
+import os
+import appdirs
+import errno
+import logging
 
 # merge two track lists based on ID
 def merge_track_lists(tracks, new_tracks):
@@ -11,43 +13,97 @@ def merge_track_lists(tracks, new_tracks):
             tracks.append(t)
     return tracks
 
-# create a list of All Access track IDs from a list of tracks
-def track_list_to_track_ids(tracks):
-    return [get_aa_id(t) for t in tracks if get_aa_id(t)]
+# match playlist track to library track
+def match_track_by_id(track_id, library):
+    matching_tracks = [t for t in library if t.get('id') == track_id]
+    if matching_tracks:
+        return matching_tracks[0]
+    else:
+        return False
 
+# return a valid id (storeId or nid)
+def get_aa_id(track):
+    if track.has_key('storeId') and track.get('storeId').startswith('T'):
+        return track.get('storeId')
+    elif track.has_key('nid') and track.get('nid').startswith('T'):
+        return track.get('nid')
+    return False
+    
 # check if track appears to be a valid All Access track
 def track_has_aa_data(track):
-    # test for unmatched track
-    if track.get('type') == 2:
-        return False
-    # check storeId
     if track.has_key('storeId') and track.get('storeId').startswith('T'):
         return True
-    #elif track.has_key('nid') and track.get('nid').startswith('T'):
-    #    return True
-    
+    elif track.has_key('nid') and track.get('nid').startswith('T'):
+        return True
     return False
   
 # get key/value pair representing a radio station ID, return False if ID not present
-# pass allowLocker = True to allow stations that are based on uploaded songs
-def get_station_id(station, allowLocker = False):
-    id_types = ['albumId', 'artistId', 'genreId', 'trackId']
+# pass allow_locker=True to allow stations that are based on uploaded songs
+def get_station_id(station, allow_locker = False):    
+    seed = station.get('seed')
     
-    # if non-AA tracks are allowed, include trackLockerId
-    if allowLocker: id_types.append('trackLockerId')
+    if seed.has_key('albumId'):
+        return {'album_id': seed.get('albumId')}
+    elif seed.has_key('artistId'):
+        return {'artist_id': seed.get('artistId')}
+    elif seed.has_key('trackId'):
+        return {'track_id': seed.get('trackId')}
+    elif seed.has_key('genreId'):
+        return {'genre_id': seed.get('genreId')}
+    if seed.has_key('trackLockerId') and allow_locker:
+        return {'track_id': seed.get('trackLockerId')}
     
-    return next(({t: station.get(t)} for t in id_types if station.has_key(t)), False)
+    return False
 
-# log into google music using a specified username and optional password
-def mobile_api_login(username, password = False):
-    if not password:
-        # get the password from a prompt (probably safer than storing in plaintext)
-        password = getpass(username + '\'s password: ')
-    
-    api = Mobileclient()
-    if not api.login(username, password):
-        print '*** ERROR: unable to login. Check your password or internet connection?'
-        exit()
-    password = None
-    
-    return api
+# initialize logger
+def logger(name, console_loglevel = 'INFO', file_loglevel = 'INFO'):
+    log = logging.getLogger(name)
+    log.setLevel(logging.DEBUG)
+
+    # create null handler if running silent
+    if console_loglevel == 'NONE' and file_loglevel == 'NONE':
+        nh = logging.NullHandler()
+        log.addHandler(nh)
+
+    # set up console logging
+    if console_loglevel != 'NONE':
+        ch = logging.StreamHandler()
+        ch.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+
+        if console_loglevel == 'CRITICAL':
+            ch.setLevel(logging.CRITICAL)
+        elif console_loglevel == 'ERROR':
+            ch.setLevel(logging.ERROR)
+        elif console_loglevel == 'WARNING':
+            ch.setLevel(logging.WARNING)
+        elif console_loglevel == 'DEBUG':
+            ch.setLevel(logging.DEBUG)
+        else: ch.setLevel(logging.INFO)
+
+        log.addHandler(ch)
+
+    # set up file logging
+    if file_loglevel != 'NONE':
+        log_path = os.path.join(appdirs.user_log_dir(name), name + '.log')
+        try:
+            os.makedirs(os.path.dirname(log_path), 0o700)
+        except OSError as exception:
+            if exception.errno != errno.EEXIST:
+                raise
+
+        fh = logging.FileHandler(log_path)
+        fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s [%(levelname)s]: %(message)s'))
+
+        if file_loglevel == 'CRITICAL':
+            fh.setLevel(logging.CRITICAL)
+        elif file_loglevel == 'ERROR':
+            fh.setLevel(logging.ERROR)
+        elif file_loglevel == 'WARNING':
+            fh.setLevel(logging.WARNING)
+        elif file_loglevel == 'DEBUG':
+            fh.setLevel(logging.DEBUG)
+        else: fh.setLevel(logging.INFO)
+
+        log.addHandler(fh)
+
+    return log

@@ -13,9 +13,9 @@ gmusicapi - https://github.com/simon-weber/Unofficial-Google-Music-API
 
 ##Usage
 
-`python gmusic-migrate <origin account> [-op <origin password>] <destination account> [-dp <destination password>]`
+`python gmusic-migrate <origin account> <destination account>`
 
-If you do not specify a password for an account, the script will prompt you for one.
+There are a number of optional command-line arguments; run the script without specifying any accounts and the program will list these for you.
 
 ##Notes and limitations
 
