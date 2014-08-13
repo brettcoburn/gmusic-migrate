@@ -22,12 +22,13 @@ There are a number of optional command-line arguments; run the script without sp
 * If you use two factor authentication you will need to temporarily disable it or create and use application-specific passwords
 * This script does not migrate stored ("locker") tracks that were uploaded through Google Music Manager. You should use Music Manager to migrate these tracks on your own.
 * Ratings and playlist information for "locker" tracks will not be migrated
-* Some tracks seem to fail repeatedly, seems to be a server side issue or API problem
-* Thumbs-down ratings will only be applied to tracks in your library
+* You may see a lot of warnings about locker tracks (you can ignore these!)
+* Thumbs-down ratings will only be applied to tracks in your library that have not been deleted
 * Playlist subscriptions will not be migrated
 * Play counts will be 0 on your new account
 * All migrated playlists will be created as private
 * Imported songs will lose any custom metadata, except for thumbs-up and thumbs-down ratings
+* Look in your user log folder (or search for gmusic-migrate.log) to find the debug logs, can be useful to help you figure out what needs to be migrated manually
 
 ##Acknowledgments
 
